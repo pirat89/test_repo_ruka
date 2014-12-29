@@ -308,6 +308,84 @@ namespace BIO.Project.FingerPrintRecognition
             return bitMap;
         }
 
+        /// <summary>
+        /// Funkce provadi extrakci markantu. Extrahuji se pouze vidlice,
+        /// protoze se jedna o spolehlivejsi rys.
+        /// </summary>
+        /// <param name="input">otisk prstu binarizovany a se ztentenymi
+        /// pap. liniemi</param>
+        /// <returns>Vektor markantu</returns>
+        FingerPrintFeatureVector GetMinutaes(Bitmap input)
+        {
+            int border_value = 5;
+            int sum;
+            int sub_val = 0;
+            int fork = 6;
+            Color tmp;
+            Color tmp2;
+
+            var featureVector = new FingerPrintFeatureVector();
+
+            // Pruchod 8-okoli
+            int[] r_arr = {0, -1, -1, -1,  0,  1, 1, 1};
+            int[] c_arr = {1,  1,  0, -1, -1, -1, 0, 1};
+
+            int[] r_arr2 = {-1, -1, -1,  0,  1, 1, 1, 0};
+            int[] c_arr2 = { 1,  0, -1, -1, -1, 0, 1, 1};
+
+            // Pruchod okoli 9-24, kde 25 = 9
+            int[] r_arr3 = {0, -1, -2, -2, -2, -2, -2, -1,  0,  1,  2,  2, 2, 2, 2, 1};
+            int[] c_arr3 = {2,  2,  2,  1,  0, -1, -2, -2, -2, -2, -2, -1, 0, 1, 2, 2};
+
+            int[] r_arr4 = {-1, -2, -2, -2, -2, -2, -1,  0,  1,  2,  2, 2, 2, 2, 1, 0};
+            int[] c_arr4 = { 2,  2,  1,  0, -1, -2, -2, -2, -2, -2, -1, 0, 1, 2, 2, 2};
+
+            for (var r = border_value; r < input.Height - border_value; ++r)
+            {
+                for (var c = border_value; c < input.Width - border_value; ++c)
+                {
+                    sum = 0;
+                    // Projiti 8-okoli
+                    for (var i = 0; i < 8; ++i)
+                    {
+                        tmp = input.GetPixel(c + c_arr[i], r + r_arr[i]);
+                        tmp2 = input.GetPixel(c + c_arr2[i], r + r_arr2[i]);
+                        sub_val = Math.Abs(tmp2.R - tmp.R);
+                        sum += sub_val;
+                    }
+
+                    // Nalezeni vidlicky
+                    if (sum == fork)
+                    {
+                        sum = 0;
+
+                        // Rozsireni plochy okoli
+                        for (var i = 0; i < 16; ++i)
+                        {
+                            tmp = input.GetPixel(c + c_arr3[i], r + r_arr3[i]);
+                            tmp2 = input.GetPixel(c + c_arr4[i], r + r_arr4[i]);
+                            sub_val = Math.Abs(tmp2.R - tmp.R);
+                            sum += sub_val;
+                        }
+
+                        // Potvrzeni nalezeni vidlicky
+                        if (sum == fork)
+                        {
+                            var minutae = new FingerPrintMinutiae();
+                            minutae.PositionX = c;
+                            minutae.PositionY = r;
+                            // TODO: Vypocet uhlu!!
+                            minutae.Angle = 0;
+                            minutae.Type = FingerPrintMinutiae.MinutiaeType.FORK;
+
+                            featureVector.Minutiaes.Add(minutae);
+                        }
+                    }
+                }
+            }
+
+            return featureVector;
+        }
 
         public FingerPrintFeatureVector extractFeatureVector(EmguGrayImageInputData input)
         {
@@ -315,6 +393,11 @@ namespace BIO.Project.FingerPrintRecognition
             var featureVector = new FingerPrintFeatureVector();
 
             Bitmap binarizedImg = Binarization(input);
+
+            // TODO: Ztenseni
+
+            // TODO: Zmenit binarizedImg na ztencenyImg!!!
+            //var featureVector = GetMinutaes(binarizedImg);
 
             return featureVector;
         }

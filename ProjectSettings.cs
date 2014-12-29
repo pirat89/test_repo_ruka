@@ -29,6 +29,7 @@ namespace BIO.Project.FingerPrintRecognition
         {
             // TODO: Vlozit spravnou slozku!!!!
             return new FingerPrintDatabaseCreator(@"..\..\jaffe");
+            //return new FingerPrintDatabaseCreator(@"..\..\jaffe\PNG");
         }
 
         protected override Framework.Core.Evaluation.Block.IBlockEvaluatorSettings<StandardRecord<StandardRecordData>, EmguGrayImageInputData> getEvaluatorSettings()

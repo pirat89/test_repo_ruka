@@ -27,8 +27,10 @@ namespace BIO.Project.FingerPrintRecognition
             DirectoryInfo di = new DirectoryInfo(this.databasePath);
             string path = Directory.GetCurrentDirectory();
             Console.WriteLine("Curr dir:  {0}", path);
+
             // TODO: Vlozit spravnou priponu!!!!
             FileInfo[] files = di.GetFiles("*.tiff");
+            //FileInfo[] files = di.GetFiles("*.png");
 
             foreach (FileInfo f in files)
             {

@@ -29,8 +29,8 @@ namespace BIO.Project.FingerPrintRecognition
             Console.WriteLine("Curr dir:  {0}", path);
 
             // TODO: Vlozit spravnou priponu!!!!
-            FileInfo[] files = di.GetFiles("*.tiff");
-            //FileInfo[] files = di.GetFiles("*.png");
+            //FileInfo[] files = di.GetFiles("*.tiff");
+            FileInfo[] files = di.GetFiles("*.png");
 
             foreach (FileInfo f in files)
             {

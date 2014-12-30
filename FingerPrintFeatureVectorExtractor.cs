@@ -392,23 +392,23 @@ namespace BIO.Project.FingerPrintRecognition
             return args.Count( t => t);
         }
 
-        bool tgh(Bitmap image ,Boolean odd)
+        bool tgh(bool[,] image ,Boolean odd)
         {
             bool p1,p2,p3,p4,p5,p6,p7,p8, p9, tmp, changed = false;
             int C, n, n1, n2;
                 
-            for(int i = 1; i < image.Height -1; i++) {
-                for(int j = 1; j < image.Width -1; j++) {
-                    p1 = image.GetPixel(j, i).R == 0 ? false : true;
+            for(int i = 1; i < image.GetLength(1) -1; i++) {
+                for(int j = 1; j < image.GetLength(0) -1; j++) {
+                    p1 = image[j, i];
                     if (p1 == true) continue;
-                    p2 = image.GetPixel(j-1,i).R == 0? false : true;
-                    p3 = image.GetPixel(j-1,i+1).R == 0? false : true;
-                    p4 = image.GetPixel(j,i+1).R == 0? false : true;
-                    p5 = image.GetPixel(j+1,i+1).R == 0? false : true;
-                    p6 = image.GetPixel(j+1,i).R == 0? false : true;
-                    p7 = image.GetPixel(j+1,i-1).R == 0? false : true;
-                    p8 = image.GetPixel(j,i-1).R == 0? false : true;
-                    p9 = image.GetPixel(j+1,i-1).R == 0? false : true;
+                    p2 = image[j-1,i];
+                    p3 = image[j-1,i+1];
+                    p4 = image[j,i+1];
+                    p5 = image[j+1,i+1];
+                    p6 = image[j+1,i];
+                    p7 = image[j+1,i-1];
+                    p8 = image[j,i-1];
+                    p9 = image[j+1,i-1];
 
                     C = CountTrue((!p2 && (p3 || p4)), (!p4 && (p5 || p6)), (!p6 && (p7 || p8)), (!p8 && (p9 || p2)));
                     n1 = CountTrue((p9 || p2), (p3 || p4), (p5 || p6), (p7 || p8));
@@ -419,7 +419,7 @@ namespace BIO.Project.FingerPrintRecognition
                     if (C == 1 && (n >= 2 && n <= 3) && tmp == false)
                     {
                         changed = true;
-                        image.SetPixel(j, i, Color.White);
+                        image[j, i] =  true;
                     }
                 }
             }
@@ -427,7 +427,7 @@ namespace BIO.Project.FingerPrintRecognition
             return changed;
         }
 
-        void ThinningGuoHall(Bitmap image)
+        void ThinningGuoHall(bool[,] image)
         {
             //Boolean changed = new Boolean();
             bool changed;
@@ -484,9 +484,10 @@ namespace BIO.Project.FingerPrintRecognition
             var featureVector = new FingerPrintFeatureVector();
 
             Bitmap binarizedImg = Binarization(input);
-            bool[,] workImg = bitmap2bool(binarizedImg, true);
+            bool[,] workImg = bitmap2bool(binarizedImg, false);
+            ThinningGuoHall(workImg);
+
             Bitmap thinnImg = bool2bitmap(workImg, true);
-            ThinningGuoHall(thinnImg);
 
             // TODO: Zmenit binarizedImg na ztencenyImg!!!
             //var featureVector = GetMinutaes(binarizedImg);

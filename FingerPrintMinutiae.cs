@@ -11,7 +11,7 @@ namespace BIO.Project.FingerPrintRecognition
         int positionX;
         int positionY;
         double angle;
-        enum MinutiaeType { CROSS, ENDING };
+        public enum MinutiaeType { CROSS, ENDING, FORK };
         MinutiaeType type;
 
         #region Getters and Setters
@@ -33,7 +33,7 @@ namespace BIO.Project.FingerPrintRecognition
             set { angle = value; }
         }
 
-        private MinutiaeType Type
+        public MinutiaeType Type
         {
             get { return type; }
             set { type = value; }

@@ -387,14 +387,106 @@ namespace BIO.Project.FingerPrintRecognition
             return featureVector;
         }
 
+        int CountTrue(params bool[] args)
+        {
+            return args.Count( t => t);
+        }
+
+        bool tgh(Bitmap image ,Boolean odd)
+        {
+            bool p1,p2,p3,p4,p5,p6,p7,p8, p9, tmp, changed = false;
+            int C, n, n1, n2;
+                
+            for(int i = 1; i < image.Height -1; i++) {
+                for(int j = 1; j < image.Width -1; j++) {
+                    p1 = image.GetPixel(j, i).R == 0 ? false : true;
+                    if (p1 == true) continue;
+                    p2 = image.GetPixel(j-1,i).R == 0? false : true;
+                    p3 = image.GetPixel(j-1,i+1).R == 0? false : true;
+                    p4 = image.GetPixel(j,i+1).R == 0? false : true;
+                    p5 = image.GetPixel(j+1,i+1).R == 0? false : true;
+                    p6 = image.GetPixel(j+1,i).R == 0? false : true;
+                    p7 = image.GetPixel(j+1,i-1).R == 0? false : true;
+                    p8 = image.GetPixel(j,i-1).R == 0? false : true;
+                    p9 = image.GetPixel(j+1,i-1).R == 0? false : true;
+
+                    C = CountTrue((!p2 && (p3 || p4)), (!p4 && (p5 || p6)), (!p6 && (p7 || p8)), (!p8 && (p9 || p2)));
+                    n1 = CountTrue((p9 || p2), (p3 || p4), (p5 || p6), (p7 || p8));
+                    n2 = CountTrue((p2 || p3), (p4 || p5), (p6 || p7), (p8 || p9));
+                    n = (n1 < n2)? n1 : n2;
+                    tmp = (odd)? ((p2 || p3 || !p5) && p4) : ((p6 || p7 || !p9) && p8);
+
+                    if (C == 1 && (n >= 2 && n <= 3) && tmp == false)
+                    {
+                        changed = true;
+                        image.SetPixel(j, i, Color.White);
+                    }
+                }
+            }
+
+            return changed;
+        }
+
+        void ThinningGuoHall(Bitmap image)
+        {
+            //Boolean changed = new Boolean();
+            bool changed;
+
+            do 
+            {
+                changed = tgh(image, true);
+                changed = changed || tgh(image, false);
+            } while (changed);
+
+        }
+
+        public Bitmap bool2bitmap(bool[,] image, bool invert)
+        {
+            Bitmap bImg = new Bitmap(image.GetLength(0),image.GetLength(1));
+            for (int x = 0; x < bImg.Width; x++)
+            {
+                for (int y = 0; y < bImg.Height; y++)
+                {
+                    if (image[x,y] == invert)
+                    {
+                        bImg.SetPixel(x, y, Color.Black);
+                    }
+                    else bImg.SetPixel(x, y, Color.White);
+                }
+            }
+                return bImg;
+        }
+
+        public bool[,] bitmap2bool(Bitmap bImg, bool invert)
+        {
+            bool[,] image = new bool[bImg.Width, bImg.Height];
+
+            for (int x = 0; x < bImg.Width; x++)
+            {
+                for (int y = 0; y < bImg.Height; y++)
+                {
+                    image[x, y] = (bImg.GetPixel(x, y).R == 0) == invert;
+                    /*if ((bImg.GetPixel(x,y).R == 0) == invert)
+                    {
+                        image[x,y] = true;
+                    }
+                    else image[x,y] = false;
+                     */
+                }
+            }
+
+            return image;
+        }
+
         public FingerPrintFeatureVector extractFeatureVector(EmguGrayImageInputData input)
         {
             // TODO: Implementovat extrakci rysu
             var featureVector = new FingerPrintFeatureVector();
 
             Bitmap binarizedImg = Binarization(input);
-
-            // TODO: Ztenseni
+            bool[,] workImg = bitmap2bool(binarizedImg, true);
+            Bitmap thinnImg = bool2bitmap(workImg, true);
+            ThinningGuoHall(thinnImg);
 
             // TODO: Zmenit binarizedImg na ztencenyImg!!!
             //var featureVector = GetMinutaes(binarizedImg);

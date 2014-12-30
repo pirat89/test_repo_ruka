@@ -325,6 +325,17 @@ namespace BIO.Project.FingerPrintRecognition
             Color tmp2;
 
             var featureVector = new FingerPrintFeatureVector();
+            featureVector.Minutiaes = new List<FingerPrintMinutiae>();
+
+            // TODO: Odstranit, jen pro debug!!!
+            var bitMap = new Bitmap(input.Width, input.Height);
+            for (var r = border_value; r < input.Height - border_value; ++r)
+            {
+                for (var c = border_value; c < input.Width - border_value; ++c)
+                {
+                    bitMap.SetPixel(c, r, input.GetPixel(c,r));
+                }
+            }
 
             // Pruchod 8-okoli
             int[] r_arr = {0, -1, -1, -1,  0,  1, 1, 1};
@@ -351,7 +362,9 @@ namespace BIO.Project.FingerPrintRecognition
                         tmp = input.GetPixel(c + c_arr[i], r + r_arr[i]);
                         tmp2 = input.GetPixel(c + c_arr2[i], r + r_arr2[i]);
                         sub_val = Math.Abs(tmp2.R - tmp.R);
-                        sum += sub_val;
+
+                        if(sub_val > 0)
+                            sum++;
                     }
 
                     // Nalezeni vidlicky
@@ -365,13 +378,22 @@ namespace BIO.Project.FingerPrintRecognition
                             tmp = input.GetPixel(c + c_arr3[i], r + r_arr3[i]);
                             tmp2 = input.GetPixel(c + c_arr4[i], r + r_arr4[i]);
                             sub_val = Math.Abs(tmp2.R - tmp.R);
-                            sum += sub_val;
+
+                            if (sub_val > 0)
+                                sum++;
                         }
 
                         // Potvrzeni nalezeni vidlicky
                         if (sum == fork)
                         {
-                            var minutae = new FingerPrintMinutiae();
+                            //TODO: ODSTRANIT, jen pro debugg
+                            bitMap.SetPixel(c, r, Color.FromArgb(255, 0, 0));
+                            bitMap.SetPixel(c+1, r, Color.FromArgb(255, 0, 0));
+                            bitMap.SetPixel(c-1, r, Color.FromArgb(255, 0, 0));
+                            bitMap.SetPixel(c, r+1, Color.FromArgb(255, 0, 0));
+                            bitMap.SetPixel(c, r-1, Color.FromArgb(255, 0, 0));
+
+                            FingerPrintMinutiae minutae = new FingerPrintMinutiae();
                             minutae.PositionX = c;
                             minutae.PositionY = r;
                             // TODO: Vypocet uhlu!!
@@ -481,7 +503,7 @@ namespace BIO.Project.FingerPrintRecognition
         public FingerPrintFeatureVector extractFeatureVector(EmguGrayImageInputData input)
         {
             // TODO: Implementovat extrakci rysu
-            var featureVector = new FingerPrintFeatureVector();
+            //var featureVector = new FingerPrintFeatureVector();
 
             Bitmap binarizedImg = Binarization(input);
             bool[,] workImg = bitmap2bool(binarizedImg, false);
@@ -490,7 +512,7 @@ namespace BIO.Project.FingerPrintRecognition
             Bitmap thinnImg = bool2bitmap(workImg, true);
 
             // TODO: Zmenit binarizedImg na ztencenyImg!!!
-            //var featureVector = GetMinutaes(binarizedImg);
+            var featureVector = GetMinutaes(thinnImg);
 
             return featureVector;
         }

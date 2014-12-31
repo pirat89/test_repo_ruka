@@ -462,6 +462,83 @@ namespace BIO.Project.FingerPrintRecognition
 
         }
 
+        // z dizertacni prace Ing (Ph.D.) Michala Dobese, z roku 1996
+        bool tmdeu(bool[,] image, bool odd)
+        {
+            bool changed = false;
+            bool[] p = new bool[10];
+            bool c1, c2, c3, c4;
+            int X;
+            p[0] = false; // nema zde byt, ale diky tomu neni treba predelavat cislovani 
+
+            for (int i = 1; i < image.GetLength(1) - 1; i++)
+            {
+                for (int j = 1; j < image.GetLength(0) - 1; j++)
+                {
+                    if (image[j, i] == false)
+                        continue;
+                    X = 0;
+                    p[1] = image[j + 1, i];
+                    p[2] = image[j + 1, i - 1];
+                    p[3] = image[j, i - 1];
+                    p[4] = image[j - 1, i - 1];
+                    p[5] = image[j - 1, i];
+                    p[6] = image[j - 1, i + 1];
+                    p[7] = image[j, i + 1];
+                    p[8] = image[j + 1, i + 1];
+                    p[9] = p[1];
+
+                    // calculation
+                    for (int k = 1; k < 9; k++)
+                    {
+                        if (p[k] == p[k + 1])
+                            X += 1;
+                    }
+                    p[9] = false; // tahle pozice kopiruje jednicku a nemela by tu tedy ani byt
+                    if (X != 0 && X != 2 && X != 4)
+                        continue;
+                    if (CountTrue(p) == 1)
+                        continue;
+                    if (odd)
+                    {
+                        c1 = (p[1] && p[3] && p[5]) == false;
+                        c2 = (p[1] && p[3] && p[7]) == false;
+                        c3 = ((p[1] && p[7]) == true) && ((p[2] || p[6]) == true) && ((p[3] && p[4] && p[5] && p[8]) == false);
+                        c4 = ((p[1] && p[3]) == true) && ((p[4] || p[8]) == true) && ((p[2] && p[5] && p[6] && p[7]) == false);
+                    }
+                    else
+                    {
+                        c1 = (p[1] && p[5] && p[7]) == false;
+                        c2 = (p[3] && p[5] && p[7]) == false;
+                        c3 = ((p[3] && p[5]) == true) && ((p[2] || p[6]) == true) && ((p[3] && p[4] && p[7] && p[8]) == false);
+                        c4 = ((p[5] && p[7]) == true) && ((p[4] || p[8]) == true) && ((p[2] && p[5] && p[3] && p[6]) == false);
+                    }
+
+                    if ((c1 || c2) == false)
+                        continue;
+                    if (X == 4 && (c3 || c4) == false)
+                        continue;
+
+                    // muzeme smaznout
+                    changed = true;
+                    image[j, i] = false;
+                }
+            }
+            return changed;
+        }
+
+        void ThinningModDeutsh(bool[,] image)
+        {
+            bool changed;
+
+            do
+            {
+                changed = tmdeu(image, true);
+                changed = changed || tmdeu(image, false);
+                Bitmap oo = bool2bitmap(image, true);
+            } while (changed);
+        }
+
         public Bitmap bool2bitmap(bool[,] image, bool invert)
         {
             Bitmap bImg = new Bitmap(image.GetLength(0),image.GetLength(1));
@@ -510,6 +587,10 @@ namespace BIO.Project.FingerPrintRecognition
             ThinningGuoHall(workImg);
 
             Bitmap thinnImg = bool2bitmap(workImg, true);
+            // it's not functional
+            //workImg = bitmap2bool(binarizedImg, true);
+            //ThinningModDeutsh(workImg);
+            //Bitmap thinnImg2 = bool2bitmap(workImg, true);
 
             // TODO: Zmenit binarizedImg na ztencenyImg!!!
             var featureVector = GetMinutaes(thinnImg);

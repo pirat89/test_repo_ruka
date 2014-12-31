@@ -306,6 +306,84 @@ namespace BIO.Project.FingerPrintRecognition
             return output;
         }
 
+        void fillMaskDobes(EmguGrayImageInputData input, int rp, int cp, byte[,] mask)
+        {
+            // left top corner
+            int rc = rp - (mask.GetLength(0) -1)/2;
+            int cc = cp - (mask.GetLength(1) -1)/2;
+
+            for (int r = 0; r < mask.GetLength(0); r++)
+            {
+                for (int c = 0; c < mask.GetLength(1); c++)
+                {
+                    mask[r, c] = Convert.ToByte(input.Image[rc + r, cc + c].Intensity); 
+                }
+            }
+        }
+
+        void calcHtableDobes(int[] Htable, byte[,] mask)
+        {
+            for (int i = 0; i < 256; i++)
+                Htable[i] = 0;
+            for (int r = 0; r < mask.GetLength(0); r++)
+            {
+                for (int c = 0; c < mask.GetLength(1); c++)
+                {
+                    Htable[Convert.ToByte(mask[r, c])]++;
+                }
+            }
+        }
+
+        bool[,] BinarizationDobes(EmguGrayImageInputData input)
+        {
+            bool[,] output = new bool[input.Image.Width, input.Image.Height];
+            byte[,] mask = new byte[7,7];
+            int N = 49;
+            byte r_bg = Math.Max(Convert.ToByte(input.Image[0, 0].Intensity),
+                Math.Max(Convert.ToByte(input.Image[0, input.Image.Width-1].Intensity),
+                    Math.Max(Convert.ToByte(input.Image[input.Image.Height-1, input.Image.Width-1].Intensity), 
+                        Convert.ToByte(input.Image[input.Image.Height-1, 0].Intensity))));
+            double P = 0.43;
+            byte treshold;
+            int[] Htable = new int[256];
+
+            for (int r = 0; r < input.Image.Height; r++ )
+            {
+                for (int c = 0; c < input.Image.Width; c++)
+                {
+                    output[c, r] = false;
+                }
+            }
+
+            for (int r = 3; r < input.Image.Height - 3; r++)
+            {
+                for (int c = 3; c < input.Image.Width -3; c++)
+                {
+                    //if (Convert.ToByte(input.Image[r, c].Intensity) < r_bg)
+                    //{
+                        // zajimavy bod
+                        fillMaskDobes(input, r, c, mask);
+                        calcHtableDobes(Htable, mask);
+                        treshold = 0;
+                        // kdyby neco selhalo tak treshold urcite vetsi nebude..
+                        for (int sum = 0; treshold < 255; treshold++)
+                        {
+                            sum += Htable[treshold];
+                            if (sum > (N * P))
+                                break; // mame prah
+                        }
+
+                        if (mask[3, 3] > treshold)
+                            output[c, r] = true;
+                    //}
+                }
+            }
+
+            return output;
+        }
+
+
+
         /// <summary>
         /// Funkce provadi extrakci markantu. Extrahuji se pouze vidlice,
         /// protoze se jedna o spolehlivejsi rys.
@@ -622,12 +700,12 @@ namespace BIO.Project.FingerPrintRecognition
 
         public FingerPrintFeatureVector extractFeatureVector(EmguGrayImageInputData input)
         {
-            bool[,] binImg = Binarization(input);
+            bool[,] binImg = BinarizationDobes(input);
             Bitmap binarizedImg = bool2bitmap(binImg, true);
 
             bool[,] workImg = bitmap2bool(binarizedImg, false);
             anti_aliasing(workImg);
-            //Bitmap aa = bool2bitmap(workImg, false);
+            Bitmap aa = bool2bitmap(workImg, false);
 
             ThinningGuoHall(workImg);
 

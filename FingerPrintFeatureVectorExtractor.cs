@@ -466,11 +466,13 @@ namespace BIO.Project.FingerPrintRecognition
         }
 
         // z dizertacni prace Ing (Ph.D.) Michala Dobese, z roku 1996
+        // i pres popisovanou upravu algoritmu se nepodarilo odstranit prerusovani papilarnich
+        // linii a algoritmus jsme tedy zavrhli
         bool tmdeu(bool[,] image, bool odd)
         {
             bool changed = false;
             bool[] p = new bool[10];
-            bool c1, c2, c3, c4;
+            bool c1, c2, c3, c4,cm;
             int X;
             p[0] = false; // nema zde byt, ale diky tomu neni treba predelavat cislovani 
 
@@ -494,7 +496,7 @@ namespace BIO.Project.FingerPrintRecognition
                     // calculation
                     for (int k = 1; k < 9; k++)
                     {
-                        if (p[k] == p[k + 1])
+                        if (p[k] != p[k + 1])
                             X += 1;
                     }
                     p[9] = false; // tahle pozice kopiruje jednicku a nemela by tu tedy ani byt
@@ -508,6 +510,11 @@ namespace BIO.Project.FingerPrintRecognition
                         c2 = (p[1] && p[3] && p[7]) == false;
                         c3 = ((p[1] && p[7]) == true) && ((p[2] || p[6]) == true) && ((p[3] && p[4] && p[5] && p[8]) == false);
                         c4 = ((p[1] && p[3]) == true) && ((p[4] || p[8]) == true) && ((p[2] && p[5] && p[6] && p[7]) == false);
+                        // podminky kodovane jako 189 a 102 o kterych se zminuje Dobes ve sve dizertacni praci
+                        cm = (p[1] == false && p[2] == true && p[3] == true && p[4] == false
+                              && p[5] == false && p[6] == true && p[7] == true && p[8] == false) ||
+                             (p[1] == false && p[2] == true && p[3] == true && p[4] == false
+                              && p[5] == false && p[6] == true && p[7] == true && p[8] == false);
                     }
                     else
                     {
@@ -515,16 +522,32 @@ namespace BIO.Project.FingerPrintRecognition
                         c2 = (p[3] && p[5] && p[7]) == false;
                         c3 = ((p[3] && p[5]) == true) && ((p[2] || p[6]) == true) && ((p[3] && p[4] && p[7] && p[8]) == false);
                         c4 = ((p[5] && p[7]) == true) && ((p[4] || p[8]) == true) && ((p[2] && p[5] && p[3] && p[6]) == false);
+                        cm = false;
                     }
 
-                    if ((c1 || c2) == false)
-                        continue;
-                    if (X == 4 && (c3 || c4) == false)
+                    if (cm)
                         continue;
 
-                    // muzeme smaznout
-                    changed = true;
-                    image[j, i] = false;
+                    if (c1 && c2)
+                    {
+                        if (X == 4)
+                        {
+                            if (c3 || c4)
+                            {
+                                // muzeme smaznout
+                                changed = true;
+                                image[j, i] = false;
+                            }
+                            // nic
+                        }
+                        else
+                        {
+
+                            // muzeme smaznout
+                            changed = true;
+                            image[j, i] = false;
+                        }
+                    }
                 }
             }
             return changed;
@@ -538,7 +561,6 @@ namespace BIO.Project.FingerPrintRecognition
             {
                 changed = tmdeu(image, true);
                 changed = changed || tmdeu(image, false);
-                Bitmap oo = bool2bitmap(image, true);
             } while (changed);
         }
         public Bitmap bool2bitmap(bool[,] image, bool invert)
@@ -567,12 +589,6 @@ namespace BIO.Project.FingerPrintRecognition
                 for (int y = 0; y < bImg.Height; y++)
                 {
                     image[x, y] = (bImg.GetPixel(x, y).R == 0) == invert;
-                    /*if ((bImg.GetPixel(x,y).R == 0) == invert)
-                    {
-                        image[x,y] = true;
-                    }
-                    else image[x,y] = false;
-                     */
                 }
             }
 
@@ -590,7 +606,6 @@ namespace BIO.Project.FingerPrintRecognition
 
             Bitmap thinnImg = bool2bitmap(workImg, true);
 
-            // it's not functional
             //workImg = bitmap2bool(binarizedImg, true);
             //ThinningModDeutsh(workImg);
             //Bitmap thinnImg2 = bool2bitmap(workImg, true);

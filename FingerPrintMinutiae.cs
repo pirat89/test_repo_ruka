@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace BIO.Project.FingerPrintRecognition
 {
+    [Serializable()]
     class FingerPrintMinutiae
     {
         int positionX;

@@ -391,7 +391,131 @@ namespace BIO.Project.FingerPrintRecognition
             return output;
         }
 
+        bool TrackPapilarLine(bool[,] input, int c, int r, int c_dir, int r_dir, int deep)
+        {
+            int new_c = c + c_dir;
+            int new_r = r + r_dir;
 
+            deep++;
+
+            if (deep == 3)
+                return true;
+
+            if (r_dir == -1 && c_dir == 0)
+            {
+                if (!input[new_c - 1, new_r - 1])
+                    return TrackPapilarLine(input, new_c, new_r, -1, -1, deep);
+                else if (!input[new_c, new_r - 1])
+                    return TrackPapilarLine(input, new_c, new_r, 0, -1, deep);
+                else if (!input[new_c + 1, new_r - 1])
+                    return TrackPapilarLine(input, new_c, new_r, 1, -1, deep);
+                else
+                    return false;
+            }
+            else if (r_dir == -1 && c_dir == 1)
+            {
+                if (!input[new_c, new_r - 1])
+                    return TrackPapilarLine(input, new_c, new_r, 0, -1, deep);
+                else if (!input[new_c + 1, new_r - 1])
+                    return TrackPapilarLine(input, new_c, new_r, 1, -1, deep);
+                else if (!input[new_c + 1, new_r])
+                    return TrackPapilarLine(input, new_c, new_r, 1, 0, deep);
+
+                else if (!input[new_c - 1, new_r - 1])
+                    return TrackPapilarLine(input, new_c, new_r, -1, -1, deep);
+                else if (!input[new_c + 1, new_r + 1])
+                    return TrackPapilarLine(input, new_c, new_r, 1, 1, deep);
+
+                else
+                    return false;
+            }
+            else if (r_dir == 0 && c_dir == 1)
+            {
+                if (!input[new_c + 1, new_r - 1])
+                    return TrackPapilarLine(input, new_c, new_r, 1, -1, deep);
+                else if (!input[new_c + 1, new_r])
+                    return TrackPapilarLine(input, new_c, new_r, 1, 0, deep);
+                else if (!input[new_c + 1, new_r + 1])
+                    return TrackPapilarLine(input, new_c, new_r, 1, 1, deep);
+                else
+                    return false;
+            }
+            else if (r_dir == 1 && c_dir == 1)
+            {
+                if (!input[new_c + 1, new_r])
+                    return TrackPapilarLine(input, new_c, new_r, 1, 0, deep);
+                else if (!input[new_c + 1, new_r + 1])
+                    return TrackPapilarLine(input, new_c, new_r, 1, 1, deep);
+                else if (!input[new_c, new_r + 1])
+                    return TrackPapilarLine(input, new_c, new_r, 0, 1, deep);
+
+                else if (!input[new_c + 1, new_r - 1])
+                    return TrackPapilarLine(input, new_c, new_r, 1, -1, deep);
+                else if (!input[new_c - 1, new_r + 1])
+                    return TrackPapilarLine(input, new_c, new_r, -1, 1, deep);
+
+                else
+                    return false;
+            }
+            else if (r_dir == 1 && c_dir == 0)
+            {
+                if (!input[new_c + 1, new_r + 1])
+                    return TrackPapilarLine(input, new_c, new_r, 1, 1, deep);
+                else if (!input[new_c, new_r + 1])
+                    return TrackPapilarLine(input, new_c, new_r, 0, 1, deep);
+                else if (!input[new_c - 1, new_r + 1])
+                    return TrackPapilarLine(input, new_c, new_r, -1, 1, deep);
+                else
+                    return false;
+            }
+            else if (r_dir == 1 && c_dir == -1)
+            {
+                if (!input[new_c, new_r + 1])
+                    return TrackPapilarLine(input, new_c, new_r, 0, 1, deep);
+                else if (!input[new_c - 1, new_r + 1])
+                    return TrackPapilarLine(input, new_c, new_r, -1, 1, deep);
+                else if (!input[new_c - 1, new_r])
+                    return TrackPapilarLine(input, new_c, new_r, -1, 0, deep);
+
+                else if (!input[new_c + 1, new_r + 1])
+                    return TrackPapilarLine(input, new_c, new_r, 1, 1, deep);
+                else if (!input[new_c - 1, new_r - 1])
+                    return TrackPapilarLine(input, new_c, new_r, -1, -1, deep);
+
+                else
+                    return false;
+            }
+            else if (r_dir == 0 && c_dir == -1)
+            {
+                if (!input[new_c - 1, new_r + 1])
+                    return TrackPapilarLine(input, new_c, new_r, -1, 1, deep);
+                else if (!input[new_c - 1, new_r])
+                    return TrackPapilarLine(input, new_c, new_r, -1, 0, deep);
+                else if (!input[new_c - 1, new_r - 1])
+                    return TrackPapilarLine(input, new_c, new_r, -1, -1, deep);
+                else
+                    return false;
+            }
+            else if (r_dir == -1 && c_dir == -1)
+            {
+                if (!input[new_c - 1, new_r])
+                    return TrackPapilarLine(input, new_c, new_r, -1, 0, deep);
+                else if (!input[new_c - 1, new_r - 1])
+                    return TrackPapilarLine(input, new_c, new_r, -1, -1, deep);
+                else if (!input[new_c, new_r - 1])
+                    return TrackPapilarLine(input, new_c, new_r, 0, -1, deep);
+
+                else if (!input[new_c - 1, new_r + 1])
+                    return TrackPapilarLine(input, new_c, new_r, -1, 1, deep);
+                else if (!input[new_c + 1, new_r - 1])
+                    return TrackPapilarLine(input, new_c, new_r, 1, -1, deep);
+
+                else
+                    return false;
+            }
+
+            return false;
+        }
 
         /// <summary>
         /// Funkce provadi extrakci markantu. Extrahuji se pouze vidlice,
@@ -476,6 +600,20 @@ namespace BIO.Project.FingerPrintRecognition
                         // Potvrzeni nalezeni vidlicky
                         if (sum == fork)
                         {
+                            
+                            bool res = true;
+                            for (var n = 0; n < 8; ++n)
+                            {
+                                tmp = input[c + c_arr[n], r + r_arr[n]];
+
+                                if (!tmp && !TrackPapilarLine(input, c, r, c_arr[n], r_arr[n], 0))
+                                    res = false;
+                            }
+
+                            // Falesna vidlicka
+                            if (!res)
+                                continue;
+                            
                             //TODO: ODSTRANIT, jen pro debugg
                             bitMap.SetPixel(c, r, Color.FromArgb(255, 0, 0));
                             bitMap.SetPixel(c + 1, r, Color.FromArgb(255, 0, 0));

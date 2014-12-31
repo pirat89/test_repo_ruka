@@ -417,6 +417,31 @@ namespace BIO.Project.FingerPrintRecognition
             return args.Count( t => t);
         }
 
+        void anti_aliasing(bool[,] image)
+        {
+            bool[] p = new bool[8];
+            bool pp;
+
+            for (int i = 1; i < image.GetLength(1) - 1; i++)
+            {
+                for (int j = 1; j < image.GetLength(0) - 1; j++)
+                {
+                    pp = image[j, i];
+                    p[0] = image[j + 1, i] == pp;
+                    p[1] = image[j + 1, i - 1] == pp;
+                    p[2] = image[j, i - 1] == pp;
+                    p[3] = image[j - 1, i - 1] == pp;
+                    p[4] = image[j - 1, i] == pp;
+                    p[5] = image[j - 1, i + 1] == pp;
+                    p[6] = image[j, i + 1] == pp;
+                    p[7] = image[j + 1, i + 1] == pp;
+
+                    if (CountTrue(p) < 4)
+                        image[j, i] = !pp;
+                }
+            }
+        }
+
         bool tgh(bool[,] image ,Boolean odd)
         {
             bool p1,p2,p3,p4,p5,p6,p7,p8, p9, tmp, changed = false;
@@ -601,6 +626,8 @@ namespace BIO.Project.FingerPrintRecognition
             Bitmap binarizedImg = bool2bitmap(binImg, true);
 
             bool[,] workImg = bitmap2bool(binarizedImg, false);
+            anti_aliasing(workImg);
+            //Bitmap aa = bool2bitmap(workImg, false);
 
             ThinningGuoHall(workImg);
 

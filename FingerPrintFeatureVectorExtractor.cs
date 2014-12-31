@@ -337,12 +337,21 @@ namespace BIO.Project.FingerPrintRecognition
         bool[,] BinarizationDobes(EmguGrayImageInputData input)
         {
             bool[,] output = new bool[input.Image.Width, input.Image.Height];
-            byte[,] mask = new byte[7,7];
-            int N = 49;
+            byte[,] mask = new byte[9,9];
+            int N = 81;
+            int M2 = 4;
             byte r_bg = Math.Max(Convert.ToByte(input.Image[0, 0].Intensity),
                 Math.Max(Convert.ToByte(input.Image[0, input.Image.Width-1].Intensity),
                     Math.Max(Convert.ToByte(input.Image[input.Image.Height-1, input.Image.Width-1].Intensity), 
                         Convert.ToByte(input.Image[input.Image.Height-1, 0].Intensity))));
+            
+            
+            /*              byte r_bg = Convert.ToByte((
+                            Convert.ToInt32(input.Image[0, 0].Intensity) +
+                            Convert.ToInt32(input.Image[0, input.Image.Width-1].Intensity) +
+                            Convert.ToInt32(input.Image[input.Image.Height-1, input.Image.Width-1].Intensity) + 
+                            Convert.ToInt32(input.Image[input.Image.Height-1, 0].Intensity))/4);
+            */ 
             double P = 0.43;
             byte treshold;
             int[] Htable = new int[256];
@@ -355,9 +364,9 @@ namespace BIO.Project.FingerPrintRecognition
                 }
             }
 
-            for (int r = 3; r < input.Image.Height - 3; r++)
+            for (int r = M2; r < input.Image.Height - M2; r++)
             {
-                for (int c = 3; c < input.Image.Width -3; c++)
+                for (int c = M2; c < input.Image.Width - M2; c++)
                 {
                     //if (Convert.ToByte(input.Image[r, c].Intensity) < r_bg)
                     //{
@@ -373,7 +382,7 @@ namespace BIO.Project.FingerPrintRecognition
                                 break; // mame prah
                         }
 
-                        if (mask[3, 3] > treshold)
+                        if (mask[M2, M2] > treshold)
                             output[c, r] = true;
                     //}
                 }
@@ -700,20 +709,30 @@ namespace BIO.Project.FingerPrintRecognition
 
         public FingerPrintFeatureVector extractFeatureVector(EmguGrayImageInputData input)
         {
-            bool[,] binImg = BinarizationDobes(input);
+            //bool[,] binImgD = BinarizationDobes(input);
+            bool[,] binImg = Binarization(input);
             Bitmap binarizedImg = bool2bitmap(binImg, true);
+            //Bitmap binarizedImgD = bool2bitmap(binImgD, false);
 
             bool[,] workImg = bitmap2bool(binarizedImg, false);
+            //bool[,] workImgD = bitmap2bool(binarizedImgD, false);
+
             anti_aliasing(workImg);
+            //anti_aliasing(workImgD);
             Bitmap aa = bool2bitmap(workImg, false);
+            //Bitmap aaD = bool2bitmap(workImgD, false);
 
             ThinningGuoHall(workImg);
+            //ThinningGuoHall(workImgD);
+
 
             Bitmap thinnImg = bool2bitmap(workImg, true);
+            //Bitmap thinnImgD = bool2bitmap(workImgD, true);
 
+            //workImgD = bitmap2bool(binarizedImgD, true);
             //workImg = bitmap2bool(binarizedImg, true);
-            //ThinningModDeutsh(workImg);
-            //Bitmap thinnImg2 = bool2bitmap(workImg, true);
+            //ThinningModDeutsh(workImgD);
+            //Bitmap thinnImg2D = bool2bitmap(workImgD, true);
 
             var featureVector = GetMinutaes(workImg);
 

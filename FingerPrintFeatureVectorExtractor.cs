@@ -526,7 +526,7 @@ namespace BIO.Project.FingerPrintRecognition
         /// <returns>Vektor markantu</returns>
         FingerPrintFeatureVector GetMinutaes(bool[,] input)
         {
-            int border_value = 5;
+            int border_value = 10;
             int sum;
             bool sub_val;
             int fork = 6;
@@ -683,7 +683,7 @@ namespace BIO.Project.FingerPrintRecognition
                     p6 = image[j+1,i];
                     p7 = image[j+1,i-1];
                     p8 = image[j,i-1];
-                    p9 = image[j+1,i-1];
+                    p9 = image[j-1,i-1];
 
                     C = CountTrue((!p2 && (p3 || p4)), (!p4 && (p5 || p6)), (!p6 && (p7 || p8)), (!p8 && (p9 || p2)));
                     n1 = CountTrue((p9 || p2), (p3 || p4), (p5 || p6), (p7 || p8));

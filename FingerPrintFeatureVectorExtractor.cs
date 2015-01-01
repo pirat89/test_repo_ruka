@@ -847,7 +847,7 @@ namespace BIO.Project.FingerPrintRecognition
 
         public FingerPrintFeatureVector extractFeatureVector(EmguGrayImageInputData input)
         {
-            bool[,] binImgD = BinarizationDobes(input);
+            bool[,] workImgD = BinarizationDobes(input);
             //bool[,] binImg = Binarization(input);
             //Bitmap binarizedImg = bool2bitmap(binImg, true);
             //Bitmap binarizedImgD = bool2bitmap(binImgD, false);

@@ -339,20 +339,20 @@ namespace BIO.Project.FingerPrintRecognition
             bool[,] output = new bool[input.Image.Width, input.Image.Height];
             byte[,] mask = new byte[9,9];
             int N = 81;
-            int M2 = 5;
-            byte r_bg = Math.Max(Convert.ToByte(input.Image[1, 1].Intensity),
+            int M2 = 4;
+            /*byte r_bg = Math.Max(Convert.ToByte(input.Image[1, 1].Intensity),
                 Math.Max(Convert.ToByte(input.Image[0, input.Image.Width-1].Intensity),
                     Math.Max(Convert.ToByte(input.Image[input.Image.Height-1, input.Image.Width-1].Intensity), 
                         Convert.ToByte(input.Image[input.Image.Height-1, 0].Intensity))));
             
-            
+            */
             /*              byte r_bg = Convert.ToByte((
                             Convert.ToInt32(input.Image[0, 0].Intensity) +
                             Convert.ToInt32(input.Image[0, input.Image.Width-1].Intensity) +
                             Convert.ToInt32(input.Image[input.Image.Height-1, input.Image.Width-1].Intensity) + 
                             Convert.ToInt32(input.Image[input.Image.Height-1, 0].Intensity))/4);
             */
-            double P = 0.55; //0.43;
+            double P = 0.55; // puvodne 0.43;
             byte treshold;
             int[] Htable = new int[256];
 
@@ -360,7 +360,7 @@ namespace BIO.Project.FingerPrintRecognition
             {
                 for (int c = 0; c < input.Image.Width; c++)
                 {
-                    output[c, r] = false;
+                    output[c, r] = true;
                 }
             }
 
@@ -383,7 +383,7 @@ namespace BIO.Project.FingerPrintRecognition
                         }
 
                         if (mask[M2, M2] < treshold)
-                            output[c, r] = true;
+                            output[c, r] = false;
                     //}
                 }
             }
@@ -850,7 +850,7 @@ namespace BIO.Project.FingerPrintRecognition
             bool[,] binImgD = BinarizationDobes(input);
             //bool[,] binImg = Binarization(input);
             //Bitmap binarizedImg = bool2bitmap(binImg, true);
-            Bitmap binarizedImgD = bool2bitmap(binImgD, true);
+            Bitmap binarizedImgD = bool2bitmap(binImgD, false);
 
             //bool[,] workImg = bitmap2bool(binarizedImg, false);
             bool[,] workImgD = bitmap2bool(binarizedImgD, false);
@@ -865,7 +865,7 @@ namespace BIO.Project.FingerPrintRecognition
             ThinningGuoHall(workImgD);
 
             //Bitmap thinnImg = bool2bitmap(workImg, true);
-            //Bitmap thinnImgD = bool2bitmap(workImgD, true);
+            Bitmap thinnImgD = bool2bitmap(workImgD, true);
 
             //workImgD = bitmap2bool(binarizedImgD, true);
             //workImg = bitmap2bool(binarizedImg, true);

@@ -848,31 +848,31 @@ namespace BIO.Project.FingerPrintRecognition
         public FingerPrintFeatureVector extractFeatureVector(EmguGrayImageInputData input)
         {
             bool[,] binImgD = BinarizationDobes(input);
-            bool[,] binImg = Binarization(input);
-            Bitmap binarizedImg = bool2bitmap(binImg, true);
+            //bool[,] binImg = Binarization(input);
+            //Bitmap binarizedImg = bool2bitmap(binImg, true);
             Bitmap binarizedImgD = bool2bitmap(binImgD, true);
 
-            bool[,] workImg = bitmap2bool(binarizedImg, false);
+            //bool[,] workImg = bitmap2bool(binarizedImg, false);
             bool[,] workImgD = bitmap2bool(binarizedImgD, false);
 
-            anti_aliasing(workImg);
+            //anti_aliasing(workImg);
             anti_aliasing(workImgD);
             anti_aliasing(workImgD);
-            Bitmap aa = bool2bitmap(workImg, false);
-            Bitmap aaD = bool2bitmap(workImgD, false);
+            //Bitmap aa = bool2bitmap(workImg, false);
+            //Bitmap aaD = bool2bitmap(workImgD, false);
 
-            ThinningGuoHall(workImg);
+            //ThinningGuoHall(workImg);
             ThinningGuoHall(workImgD);
 
-            Bitmap thinnImg = bool2bitmap(workImg, true);
-            Bitmap thinnImgD = bool2bitmap(workImgD, true);
+            //Bitmap thinnImg = bool2bitmap(workImg, true);
+            //Bitmap thinnImgD = bool2bitmap(workImgD, true);
 
             //workImgD = bitmap2bool(binarizedImgD, true);
             //workImg = bitmap2bool(binarizedImg, true);
             //ThinningModDeutsh(workImgD);
             //Bitmap thinnImg2D = bool2bitmap(workImgD, true);
 
-            var featureVector = GetMinutaes(workImg);
+            var featureVector = GetMinutaes(workImgD);
 
             return featureVector;
         }

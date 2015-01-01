@@ -11,6 +11,11 @@ namespace BIO.Project.FingerPrintRecognition
 {
     class FingerPrintComparator : IFeatureVectorComparator<FingerPrintFeatureVector, FingerPrintFeatureVector>
     {
+        /// <summary>
+        /// Funkce provadi inverzi matic
+        /// </summary>
+        /// <param name="a">Vstupni matice</param>
+        /// <returns></returns>
         double[,] GetInverse(double[,] a)
         {
             var s0 = a[0, 0] * a[1, 1] - a[1, 0] * a[0, 1];
@@ -55,13 +60,17 @@ namespace BIO.Project.FingerPrintRecognition
             return b;
         }
 
+        /// <summary>
+        /// Nasobeni matic
+        /// </summary>
+        /// <param name="a">1. matice</param>
+        /// <param name="b">2. matice</param>
+        /// <returns></returns>
         double[,] MatrixMultiply(double[,] a, double[,] b)
         {
             int row_size = a.GetLength(0);
             int col_size = b.GetLength(1);
             int inner_size = a.GetLength(1);
-
-            // TODO: Osetrit, zda se da nasobit!!!
 
             double[,] res = new double[row_size, col_size];
 
@@ -79,6 +88,12 @@ namespace BIO.Project.FingerPrintRecognition
             return res;
         }
 
+        /// <summary>
+        /// Scitani matic
+        /// </summary>
+        /// <param name="a">1. matice</param>
+        /// <param name="b">2. matice</param>
+        /// <returns></returns>
         double[,] MatrixSum(double[,] a, double[,] b)
         {
             int row = a.GetLength(0);
@@ -98,12 +113,20 @@ namespace BIO.Project.FingerPrintRecognition
         }
 
         
-        // TODO: Zmenit na spravny datovy typ!!!!
+        // Zkonstruovano na zaklade pseudokodu v disertacni praci Rozpoznavani
+        // obrazu se zamerenim na identifikaci osob dle otisku prstu pana Ing. Michala Dobese
+        /// <summary>
+        /// Funkce hleda spolecne body mezi vzorem a testovanym obrazem.
+        /// Provadi se geometricka transformace a nasledne se porovnavaji prepoctene body
+        /// ze sablony a pokousi se hledat body v testovanem obraze s priblizne stejnou pozici
+        /// </summary>
+        /// <param name="extracted">testovany obraz</param>
+        /// <param name="templated">vzor</param>
+        /// <returns></returns>
         List<FingerPrintPair> FindCoincidentPoints(FingerPrintFeatureVector extracted, FingerPrintFeatureVector templated)
         {
             // A vzor
             // B obraz
-            // TODO: Na tuhle hodnotu pozor, muze zpusobovat chybu!!!!
             double d_min = 175; // Minimalni delka dvojice bodu pro zaraazeni do seznamu dvojic
             double d_a;
             double d_b;
@@ -181,7 +204,7 @@ namespace BIO.Project.FingerPrintRecognition
 
             // Krok 2: Nalezeni nejlepsi dvojice bodu (x_1, y_1), (x_2, y_2) a (xi_1, eta_1), (xi_2, eta_2)
             //         a naplneni seznamu shodnych bodu S_best pro dalsi krok transformace.
-            int eps = 5; // Tolerance vzdalenosti je 15px
+            int eps = 5; // Tolerance vzdalenosti je 5px
             int n_best = 0;
             int p = 0;
 
@@ -195,9 +218,6 @@ namespace BIO.Project.FingerPrintRecognition
             int xi_2;
             int eta_2;
 
-            //int[,] Beta = new int[4, 1];
-            //int[,] X = new int[4, 4];
-            //int[,] K = new int[4, 1];
             double[,] Beta;
             double[,] X = new double[4, 4];
             double[,] X_inv;
@@ -321,7 +341,6 @@ namespace BIO.Project.FingerPrintRecognition
                 if (p > n_best)
                 {
                     n_best = p;
-                    // ZDE pozor!!! Reference jsou svina
                     S_best = S_pom;
                 }
             }
@@ -451,7 +470,7 @@ namespace BIO.Project.FingerPrintRecognition
 
             List<FingerPrintPair> coincident_points = FindCoincidentPoints(extracted, templated);
 
-            sum = coincident_points.Count / (double)extracted.Minutiaes.Count;
+            sum = coincident_points.Count / (double)templated.Minutiaes.Count;
 
             return new MatchingScore(sum);
         }

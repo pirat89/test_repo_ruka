@@ -181,7 +181,7 @@ namespace BIO.Project.FingerPrintRecognition
 
             // Krok 2: Nalezeni nejlepsi dvojice bodu (x_1, y_1), (x_2, y_2) a (xi_1, eta_1), (xi_2, eta_2)
             //         a naplneni seznamu shodnych bodu S_best pro dalsi krok transformace.
-            int eps = 15; // Tolerance vzdalenosti je 15px
+            int eps = 5; // Tolerance vzdalenosti je 15px
             int n_best = 0;
             int p = 0;
 
@@ -447,28 +447,11 @@ namespace BIO.Project.FingerPrintRecognition
 
         public MatchingScore computeMatchingScore(FingerPrintFeatureVector extracted, FingerPrintFeatureVector templated)
         {
-            double sum = 0;
-
-            // TODO: Zmenit na spravny datovy typ!!!!
-            //List<FingerPrintPair> coincident_points = new List<FingerPrintPair>();
+            double sum = 0.0;
 
             List<FingerPrintPair> coincident_points = FindCoincidentPoints(extracted, templated);
 
-            /*
-            if (extracted.FeatureVector.Size != templated.FeatureVector.Size ||
-                extracted.FeatureVector.Cols != 1 || templated.FeatureVector.Cols != 1)
-                throw new ArgumentException("Feature vector and template mismatch.");
-
-            var n = extracted.FeatureVector.Rows;
-            for (var i = 0; i < n; i++)
-            {
-                sum += Math.Abs(extracted.FeatureVector[i, 0] - templated.FeatureVector[i, 0]);
-            }
-            */
-            sum = coincident_points.Count;
-
-            if (coincident_points.Count >= 20)
-                sum = 100;
+            sum = coincident_points.Count / (double)extracted.Minutiaes.Count;
 
             return new MatchingScore(sum);
         }

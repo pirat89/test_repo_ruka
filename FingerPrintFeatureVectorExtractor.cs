@@ -850,10 +850,10 @@ namespace BIO.Project.FingerPrintRecognition
             bool[,] binImgD = BinarizationDobes(input);
             //bool[,] binImg = Binarization(input);
             //Bitmap binarizedImg = bool2bitmap(binImg, true);
-            Bitmap binarizedImgD = bool2bitmap(binImgD, false);
+            //Bitmap binarizedImgD = bool2bitmap(binImgD, false);
 
             //bool[,] workImg = bitmap2bool(binarizedImg, false);
-            bool[,] workImgD = bitmap2bool(binarizedImgD, false);
+            //bool[,] workImgD = bitmap2bool(binarizedImgD, false);
 
             //anti_aliasing(workImg);
             anti_aliasing(workImgD);
@@ -865,7 +865,7 @@ namespace BIO.Project.FingerPrintRecognition
             ThinningGuoHall(workImgD);
 
             //Bitmap thinnImg = bool2bitmap(workImg, true);
-            Bitmap thinnImgD = bool2bitmap(workImgD, true);
+            //Bitmap thinnImgD = bool2bitmap(workImgD, true);
 
             //workImgD = bitmap2bool(binarizedImgD, true);
             //workImg = bitmap2bool(binarizedImg, true);
